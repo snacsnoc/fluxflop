@@ -64,6 +64,7 @@ mkdir -p bootable_image/{boot,isolinux}
 Linux:
 ```
 cd linux-6.8.11
+cp ../configs/linux/.config .
 make ARCH=x86 CROSS_COMPILE=i686-linux-gnu- bzImage -j8
 ```
 
