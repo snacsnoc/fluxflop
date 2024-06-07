@@ -1,34 +1,50 @@
 ## fluxflop - floppy-sized Linux
 
+It's 2024 and floppies are still cool. Maintain that coolness by building your own floppy-sized Linux distro like it's 1999.
 
+This project is buildable by a gcc toolchain provided by your distribution or by building a [musl](https://www.musl-libc.org/) toolchain. For the smallest binaries sizes, musl is recommended.
 
 ## Pre-reqs
 
+__gcc-i686 build:__
 Package:
 ```
 apt-get install build-essential gcc-i686-linux-gnu g++-i686-linux-gnu
 ```
-Sources:
+
+__i486/i686-musl build:__
+```
+git clone https://github.com/richfelker/musl-cross-make
+cd musl-cross-make
+make TARGET=i486-linux-musl
+make install
+
+```
+__arm64-musl build:__
+```
+make TARGET=i486-linux-musl
+make install
+```
+Add the musl toolchain to your path:
+`export PATH=~/musl-cross-make/bin:$PATH`
+
+
+__Prepare the kernel:__
 ```
 wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.8.11.tar.xz
 tar -xf linux-6.8.11.tar.xz
-cd linux-6.8.11
-```
-
-Configs:
-```
 cp ./configs/linux/.config linux-6.8.11/.config
+````
 
-```
 
-Root filesystem layout:
+__Root filesystem layout:__
 ```
 mkdir -p root/{bin,proc,dev,sys,usr}
 
 
 
 # Create a simple init script
-# or compile tools/init.c
+# or compile tools/init.c and place in root/
 cat > root/init <<EOF
 #!/bin/sh
 # Mount essential filesystems
@@ -47,6 +63,7 @@ EOF
 
 chmod a+x root/init
 
+# you will need root privileges to make these nodes
 mknod -m 660 ./root/dev/console c 5 1
 mknod -m 666 ./root/dev/ttyS0 c 4 64
 mknod -m 666 ./rootdev/tty c 5 0
@@ -54,40 +71,42 @@ mknod -m 666 ./rootdev/tty c 5 0
 
 ```
 
-Output image directories:
+__Output image directories:__
 ```
 mkdir -p bootable_image/{boot,isolinux}
 ```
 
 
-## Build
-Linux:
+# Build
+__Linux:__
 ```
 cd linux-6.8.11
-cp ../configs/linux/.config .
 make ARCH=x86 CROSS_COMPILE=i686-linux-gnu- bzImage -j8
 ```
 
 
-Toybox:
+__Toybox:__
 ```
 wget https://landley.net/toybox/bin/toybox-i486 -O ./root/bin/toybox-i486
 ./scripts/toybox-symlinks.sh
 ```
+Toybox provides many common Linux utilities including a shell. For the sake of simplicity, the static builds provided by Toybox is used.
+You can optionally compile Toybox yourself.
 
-Strip debug symbols:
+
+__Strip debug symbols in the root filesystem:__
 ```
 ./scripts/stripfs.sh
 ```
 
 
 
-Make the initramfs:
+__Make the initramfs:__
 ```
 ./scripts/make-cpio.sh
 ```
 
-Syslinux for ISOs:
+__(Optional): Syslinux for ISOs:__
 ```
 wget https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/syslinux-6.03.tar.gz
 tar xvf syslinux-6.03.tar.gz
@@ -99,7 +118,7 @@ cp configs/isolinux/isolinux.cfg bootable_image/isolinux
 ```
 
 ## Boot
-Make a bootable ISO:
+__Make a bootable ISO:__
 ```
 ./scripts/make-cpio.sh
 ```
@@ -110,7 +129,7 @@ qemu-system-i386 -cdrom out.iso -m 32 -nographic
 
 
 
-Boot with qemu:
+__Boot with kernel and initial ramdisk with qemu:__
 ```
 qemu-system-i386 -kernel ./linux-6.8.11/arch/x86/boot/bzImage -initrd ./rootfs.cpio.gz -append "append init=/init rdinit=/init -m 32 -nographic
 
@@ -154,6 +173,7 @@ easto@debian-build:~/testing-linux/linux-6.8.11$ ls -ls arch/x86/boot/bzImage
 ```
 
 ## Resources
+https://landley.net/toybox/
 
 https://justine.lol/sizetricks/
 
