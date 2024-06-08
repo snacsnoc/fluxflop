@@ -40,6 +40,7 @@ tar -xf linux-6.9.3.tar.xz
 
 cp ./configs/linux/.config-<config-name> linux-6.9.3/.config
 ````
+The smallest kernel produced is using `.config-x86-fb` (XZ compression) = 592KB
 
 
 __Root filesystem layout:__
