@@ -33,7 +33,12 @@ __Prepare the kernel:__
 ```
 wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.9.3.tar.xz
 tar -xf linux-6.9.3.tar.xz
-cp ./configs/linux/.config linux-6.9.3/.config
+
+# .config - default i686 config
+# .config-x86-fb - i486 musl with framebuffer support
+# .config-x86-serial - i486 musl with serial support
+
+cp ./configs/linux/.config-<config-name> linux-6.9.3/.config
 ````
 
 
@@ -168,23 +173,26 @@ __-fomit-frame-pointer__:
 easto@debian-build:~/testing-linux/linux-6.8.11$ ls -ls arch/x86/boot/bzImage 
 728 -rw-r--r-- 1 easto easto 741888 May 30 02:27 arch/x86/boot/bzImage
 
+easto@debian2:/tmp/linux-6.9.3$ stat -c %s vmlinux
+1919144
 
- make KCFLAGS="-fomit-frame-pointer" ARCH=x86 CROSS_COMPILE=i686-linux-gnu- bzImage -j8
+make KCFLAGS="-fomit-frame-pointer" ARCH=x86 CROSS_COMPILE=i686-linux-gnu- bzImage -j8
  
- easto@debian-build:~/testing-linux/linux-6.8.11$ ls -ls arch/x86/boot/bzImage 
+easto@debian-build:~/testing-linux/linux-6.8.11$ ls -ls arch/x86/boot/bzImage 
 716 -rw-r--r-- 1 easto easto 729600 May 30 02:30 arch/x86/boot/bzImage
 
+easto@debian2:/tmp/linux-6.9.3$ stat -c %s vmlinux
+1886332
+```
+__-fno-inline-small-functions__:
+```
+easto@debian2:/tmp/linux-6.9.3$ stat -c %s vmlinux
+1919144
 
-```
--fno-inline-small-functions
-```
-easto@debian2:/tmp/linux-6.9.3$ ls -ls arch/arm64/boot/
-total 2864
-   4 drwxr-xr-x 36 easto easto    4096 Jun  7 00:26 dts
-2000 -rwxr-xr-x  1 easto easto 2131976 Jun  7 00:27 Image
- 852 -rw-r--r--  1 easto easto  868591 Jun  7 00:27 Image.gz
-   4 -rwxr-xr-x  1 easto easto    1001 May 30 00:45 install.sh
-   4 -rw-r--r--  1 easto easto    1369 May 30 00:45 Makefile
+make KCFLAGS="-fno-inline-small-functions" ARCH=x86 CROSS_COMPILE=i486-linux-musl- -j8
+
+easto@debian2:/tmp/linux-6.9.3$ stat -c %s vmlinux
+1919528
    ````
 
 
