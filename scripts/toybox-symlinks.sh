@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-TOYBOX_BIN="./root/bin/toybox-i486"
+TOYBOX_BIN="toybox-i486"
 
 # List of toybox commands (from ARM64 version)
 COMMANDS=(
@@ -35,13 +35,13 @@ mkdir -p "$BIN_DIR" "$USR_BIN_DIR" "$USR_SBIN_DIR" "$SBIN_DIR"
 create_symlink() {
   local cmd=$1
   if [[ "$cmd" =~ ^(halt|ifconfig|insmod|losetup|modinfo|poweroff|reboot|route|rmmod|swapoff|swapon|switch_root|sysctl)$ ]]; then
-    ln -sf "$TOYBOX_BIN" "$SBIN_DIR/$cmd"
+    ln -sf "../../bin/$TOYBOX_BIN" "$SBIN_DIR/$cmd"
   elif [[ "$cmd" =~ ^(chroot|freeramdisk|i2cdetect|i2cdump|i2cget|i2cset|i2ctransfer|rtc)$ ]]; then
-    ln -sf "$TOYBOX_BIN" "$USR_SBIN_DIR/$cmd"
+    ln -sf "../../bin/$TOYBOX_BIN" "$USR_SBIN_DIR/$cmd"
   elif [[ "$cmd" =~ ^(login|sh)$ ]]; then
-    ln -sf "$TOYBOX_BIN" "$BIN_DIR/$cmd"
+    ln -sf "./$TOYBOX_BIN" "$BIN_DIR/$cmd"
   else
-    ln -sf "$TOYBOX_BIN" "$USR_BIN_DIR/$cmd"
+    ln -sf "../../bin/$TOYBOX_BIN" "$USR_BIN_DIR/$cmd"
   fi
 }
 
