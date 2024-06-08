@@ -131,8 +131,12 @@ qemu-system-i386 -cdrom out.iso -m 32 -nographic
 
 __Boot with kernel and initial ramdisk with qemu:__
 ```
-qemu-system-i386 -kernel ./linux-6.8.11/arch/x86/boot/bzImage -initrd ./rootfs.cpio.gz -append "append init=/init rdinit=/init -m 32 -nographic
+qemu-system-i386 -kernel ./linux-6.8.11/arch/x86/boot/bzImage -initrd ./rootfs.cpio.gz -append "init=/init rdinit=/init console=ttyS0,115200n8" -m 32 -nographic
+```
 
+or, if you built with simple framebuffer:
+```
+qemu-system-i386 -kernel ./bzImage -initrd ./rootfs.cpio.gz -append "init=/init rdinit=/init console=tty0" -m 32
 ```
 
 ## Extra
