@@ -97,7 +97,16 @@ wget https://landley.net/toybox/bin/toybox-i486 -O ./root/bin/toybox-i486
 ./scripts/toybox-symlinks.sh
 ```
 Toybox provides many common Linux utilities including a shell. For the sake of simplicity, the static builds provided by Toybox is used.
-You can optionally compile Toybox yourself.
+You can optionally compile Toybox yourself:
+```
+wget https://landley.net/toybox/downloads/toybox-0.8.11.tar.gz
+tar xvf toybox-0.8.11.tar.gz
+cp ./configs/toybox/.config toybox-0.8.11
+cd toybox-0.8.11
+make LDFLAGS="-static -s" ARCH=x86 CROSS_COMPILE=i486-linux-musl- -j8
+make install
+cp -R install/* ./root
+```
 
 
 __Strip debug symbols in the root filesystem:__
@@ -120,13 +129,15 @@ cd syslinux-6.03
 
 cp syslinux/bios/core/isolinux.bin bootable_image/isolinux
 cp syslinux/bios/com32/elflink/ldlinux/ldlinux.c32 bootable_image/isolinux
+
+# copy config
 cp configs/isolinux/isolinux.cfg bootable_image/isolinux
 ```
 
 ## Boot
 __Make a bootable ISO:__
 ```
-./scripts/make-cpio.sh
+./scripts/make-iso.sh
 ```
 and boot with:
 ```
