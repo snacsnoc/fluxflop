@@ -143,7 +143,19 @@ and boot with:
 ```
 qemu-system-i386 -cdrom out.iso -m 32 -nographic 
 ```
+__Make a bootable floppy:__
+Edit the Linux `.config` and set `CONFIG_INITRAMFS_SOURCE` to your rootfs cpio archive path.
+```
+git clone https://github.com/snacsnoc/tiny-floppy-bootloader
 
+# copy your kernel to the current dir
+cp ../linux-6.9.3/arch/x86/boot/bzImage .
+
+bash build.sh
+
+```
+Boot with qemu:
+`qemu-system-i386 -fda disk.img`
 
 
 __Boot with kernel and initial ramdisk with qemu:__
