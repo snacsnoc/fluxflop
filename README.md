@@ -1,4 +1,4 @@
-## fluxflop - floppy-sized Linux
+# fluxflop - floppy-sized Linux
 
 It's 2024 and floppies are still cool. Maintain that coolness by building your own floppy-sized Linux distro like it's 1999.
 
@@ -7,7 +7,8 @@ This project is buildable by a gcc toolchain provided by your distribution or by
 ## Pre-reqs
 
 __gcc-i686 build:__
-Package:
+
+Packages:
 ```
 apt-get install build-essential gcc-i686-linux-gnu g++-i686-linux-gnu
 ```
@@ -22,12 +23,31 @@ make install
 ```
 __arm64-musl build:__
 ```
-make TARGET=i486-linux-musl
+make TARGET=aarch64-linux-musl
 make install
 ```
 Add the musl toolchain to your path:
 `export PATH=~/musl-cross-make/bin:$PATH`
 
+__Building on Mac OS:__
+
+Save yourself a headache and use a pre-built toolchain courtesy of [homebrew-macos-cross-toolchains](https://github.com/messense/homebrew-macos-cross-toolchains)
+```
+brew tap messense/macos-cross-toolchains
+# valid targets are aarch64-unknown-linux-musl, arm-unknown-linux-musleabihf
+# armv7-unknown-linux-musleabihf, i686-unknown-linux-musl, x86_64-unknown-linux-musl
+brew install i686-unknown-linux-musl
+```
+Install the LLVM linker:
+```
+brew install lld
+```
+Install [lkmake](https://github.com/markbhasawut/mac-linux-kdk) to included needed headers files for a successful build:
+```
+brew tap markbhasawut/markbhasawut
+brew -v install markbhasawut/markbhasawut/mac-linux-kdk
+```
+For the following directions, use `lkmake` in place of `make`
 
 __Prepare the kernel:__
 ```
@@ -87,7 +107,7 @@ mkdir -p bootable_image/{boot,isolinux}
 __Linux:__
 ```
 cd linux-6.9.3
-make ARCH=x86 CROSS_COMPILE=i686-linux-gnu- -j8 #use bzImage for x86, Image.gz for arm64
+make ARCH=x86 CROSS_COMPILE=i686-linux-gnu- -j8 #use bzImage for x86, Image.gz for arm64. adjust -gnu to -musl as needed
 ```
 
 
