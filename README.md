@@ -27,7 +27,7 @@ make TARGET=aarch64-linux-musl
 make install
 ```
 Add the musl toolchain to your path:
-`export PATH=~/musl-cross-make/bin:$PATH`
+`export PATH=~/musl-cross-make/output/bin:$PATH`
 
 __Building on Mac OS:__
 
