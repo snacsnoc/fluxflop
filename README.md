@@ -1,6 +1,6 @@
 # fluxflop - floppy-sized Linux
 
-It's 2024 and floppies are still cool. Maintain that coolness by building your own floppy-sized Linux distro like it's 1999.
+It's ~~2024~~ 2025 and floppies are still cool. Maintain that coolness by building your own floppy-sized Linux distro like it's 1999.
 
 This project is buildable by a gcc toolchain provided by your distribution or by building a [musl](https://www.musl-libc.org/) toolchain. For the smallest binaries sizes, musl is recommended.
 
@@ -15,7 +15,9 @@ apt-get install build-essential gcc-i686-linux-gnu g++-i686-linux-gnu
 
 __i486/i686-musl build:__
 ```
+# see README.md within musl-cross-make for all targets
 git clone https://github.com/richfelker/musl-cross-make
+
 cd musl-cross-make
 make TARGET=i486-linux-musl
 make install
@@ -49,16 +51,21 @@ brew -v install markbhasawut/markbhasawut/mac-linux-kdk
 ```
 For the following directions, use `lkmake` in place of `make`
 
+__Create a build dir:__
+`mkdir build/`
+
 __Prepare the kernel:__
 ```
+cd build/
 wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.9.3.tar.xz
 tar -xf linux-6.9.3.tar.xz
 
 # .config - default i686 config
-# .config-x86-fb - i486 musl with framebuffer support
-# .config-x86-serial - i486 musl with serial support
+# .config-x86-fb - i486 with framebuffer support
+# .config-x86-serial - i486 with serial support
+# .config-x86-vga - i486(DX) with VGA
 
-cp ./configs/linux/.config-<config-name> linux-6.9.3/.config
+cp ./configs/linux/6.x.x/.config-<config-name> linux-6.9.3/.config
 ````
 The smallest kernel produced is using `.config-x86-fb` (XZ compression) = 592KB
 
@@ -105,6 +112,7 @@ mkdir -p bootable_image/{boot,isolinux}
 
 # Build
 __Linux:__
+Note: if you are including the initramfs in `.config` within the built image, build the rootfs first.
 ```
 cd linux-6.9.3
 make ARCH=x86 CROSS_COMPILE=i686-linux-gnu- -j8 #use bzImage for x86, Image.gz for arm64. adjust -gnu to -musl as needed
@@ -119,11 +127,14 @@ wget https://landley.net/toybox/bin/toybox-i486 -O ./root/bin/toybox-i486
 Toybox provides many common Linux utilities including a shell. For the sake of simplicity, the static builds provided by Toybox is used.
 You can optionally compile Toybox yourself:
 ```
+cd build/
 wget https://landley.net/toybox/downloads/toybox-0.8.11.tar.gz
 tar xvf toybox-0.8.11.tar.gz
-cp ./configs/toybox/.config toybox-0.8.11
+
+cp ../configs/toybox/.config toybox-0.8.11
 cd toybox-0.8.11
-make LDFLAGS="-static -s" ARCH=x86 CROSS_COMPILE=i486-linux-musl- -j8
+
+make CFLAGS="-march=i486 -mtune=i486" LDFLAGS="-static -s" ARCH=x86 CROSS_COMPILE=i486-linux-musl- -j8
 make install
 cp -R install/* ./root
 ```
@@ -164,14 +175,15 @@ and boot with:
 qemu-system-i386 -cdrom out.iso -m 32 -nographic 
 ```
 __Make a bootable floppy:__
-Edit the Linux `.config` and set `CONFIG_INITRAMFS_SOURCE` to your rootfs cpio archive path.
+If not already set, edit the Linux `.config` and set `CONFIG_INITRAMFS_SOURCE` to your rootfs cpio archive path.
 ```
-git clone https://github.com/snacsnoc/tiny-floppy-bootloader
+cd build/
+git clone https://github.com/oerg866/w98qi-tiny-floppy-bootloader
 
-# copy your kernel to the current dir
-cp ../linux-6.9.3/arch/x86/boot/bzImage .
+cd w98qi-tiny-floppy-bootloader/
 
-bash build.sh
+# generate a bootable floppy
+bash build.sh ../linux-6.9.3/arch/x86/boot/bzImage disk.img
 
 ```
 Boot with qemu:
