@@ -4,7 +4,24 @@ It's ~~2024~~ 2025 and floppies are still cool. Maintain that coolness by buildi
 
 This project is buildable by a gcc toolchain provided by your distribution or by building a [musl](https://www.musl-libc.org/) toolchain. For the smallest binaries sizes, musl is recommended.
 
-## Pre-reqs
+## Quick Start
+Two pre-built bootable floppy images are available in [Releases](https://github.com/snacsnoc/fluxflop/releases):
+
+- **Linux 6.12.9**: Latest kernel build
+ ```bash
+ qemu-system-i386 -fda fluxflop-linux-6.12.9-boot.img -boot a -m 32
+```
+
+- **Linux 4.20.17**: Optimized for real i486DX hardware
+ - Minimum requirements:
+   - i486DX CPU @ 25MHz+ (SX models not supported)
+   - 8MB RAM minimum (16MB recommended)
+ - Boots from:
+   - Real 1.44MB floppy disk
+   - 86Box/PCem with i486DX configuration
+   - QEMU with 5-32MB RAM setting
+
+## Building pre-reqs
 
 __gcc-i686 build:__
 
@@ -60,6 +77,7 @@ cd build/
 wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.9.3.tar.xz
 tar -xf linux-6.9.3.tar.xz
 
+# see configs/linux for all configs available
 # .config - default i686 config
 # .config-x86-fb - i486 with framebuffer support
 # .config-x86-serial - i486 with serial support
@@ -110,7 +128,7 @@ mkdir -p bootable_image/{boot,isolinux}
 ```
 
 
-# Build
+## Build
 __Linux:__
 Note: if you are including the initramfs in `.config` within the built image, build the rootfs first.
 ```
